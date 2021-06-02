@@ -65,9 +65,7 @@ class EncodedVideoDataset(torch.utils.data.IterableDataset):
         self._video_random_generator = None
         if video_sampler == torch.utils.data.RandomSampler:
             self._video_random_generator = torch.Generator()
-            self._video_sampler = video_sampler(
-                self._labeled_videos, generator=self._video_random_generator
-            )
+            self._video_sampler = video_sampler(self._labeled_videos, generator=self._video_random_generator)
         else:
             self._video_sampler = video_sampler(self._labeled_videos)
 
@@ -156,9 +154,7 @@ class EncodedVideoDataset(torch.utils.data.IterableDataset):
                 self._next_clip_start_time = 0.0
 
                 if clip_is_null:
-                    logger.debug(
-                        "Failed to load clip {}; trial {}".format(video.name, i_try)
-                    )
+                    logger.debug("Failed to load clip {}; trial {}".format(video.name, i_try))
                     continue
 
             frames = self._loaded_clip["video"]
@@ -169,6 +165,7 @@ class EncodedVideoDataset(torch.utils.data.IterableDataset):
                 "video_index": video_index,
                 "clip_index": clip_index,
                 "aug_index": aug_index,
+                "clip_start": clip_start,
                 **info_dict,
                 **({"audio": audio_samples} if audio_samples is not None else {}),
             }
@@ -181,9 +178,7 @@ class EncodedVideoDataset(torch.utils.data.IterableDataset):
 
             return sample_dict
         else:
-            raise RuntimeError(
-                f"Failed to load video after {self._MAX_CONSECUTIVE_FAILURES} retries."
-            )
+            raise RuntimeError(f"Failed to load video after {self._MAX_CONSECUTIVE_FAILURES} retries.")
 
     def __iter__(self):
         self._video_sampler_iter = None  # Reset video sampler
